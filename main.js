@@ -256,7 +256,7 @@
         form.classList.add('sent');
       } catch (err) {
         console.error('Pabbly webhook failed', err);
-        showError('Something went wrong sending your inquiry. Please try again, or email hello@steroids.com.au.');
+        showError('Something went wrong sending your inquiry. Please try again, or email team@steroidsdigital.com.au.');
       } finally {
         setBusy(false);
       }
