@@ -238,6 +238,12 @@ p{margin:0}
 .form__ok{display:none;text-align:center;color:var(--y);font-weight:500}
 .form.sent .form__ok{display:block}
 .form.sent .btn{display:none}
+.form.sent label,.form.sent .row{display:none}
+.form__hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.form__err{display:none;text-align:center;color:#ff6b6b;font-size:14px;line-height:1.5}
+.form__err.is-on{display:block}
+.form .btn[disabled]{opacity:.65;cursor:wait;transform:none}
+.form .is-invalid{border-color:#ff6b6b}
 
 /* footer */
 .footer{background:#060606;border-top:1px solid var(--line-d);padding:40px 0}

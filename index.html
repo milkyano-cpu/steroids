@@ -420,7 +420,9 @@
         <li><span>Based in</span>Melbourne, Australia</li>
       </ul>
     </div>
-    <form class="form reveal" onsubmit="event.preventDefault(); this.classList.add('sent');">
+    <form class="form reveal" id="contact-form" novalidate>
+      <!-- Honeypot anti-spam: hidden from people, bots fill it in -->
+      <div class="form__hp" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
       <div class="row"><label>First name*<input required name="first"></label><label>Last name*<input required name="last"></label></div>
       <div class="row"><label>Email*<input type="email" required name="email"></label><label>Phone / WhatsApp*<input type="tel" required name="phone" placeholder="+61"></label></div>
       <label>Company / Brand*<input required name="company"></label>
@@ -434,8 +436,9 @@
         <select name="spend"><option value="">Select a range</option><option>Not running ads yet</option><option>Under $5K / month</option><option>$5K–$20K / month</option><option>$20K–$50K / month</option><option>$50K+ / month</option></select>
       </label>
       <label>Message*<textarea required name="msg" rows="4" placeholder="Timeframe, deadlines, specific requirements…"></textarea></label>
-      <button class="btn btn--grad btn--full" type="submit">Submit Inquiry <span class="arr">↗</span></button>
-      <p class="form__ok">Thanks! We'll be in touch within one business day.</p>
+      <button class="btn btn--grad btn--full" type="submit"><span class="btn__label">Submit Inquiry</span> <span class="arr">↗</span></button>
+      <p class="form__err" role="alert" aria-live="assertive"></p>
+      <p class="form__ok" role="status" aria-live="polite">Thanks! We'll be in touch within one business day.</p>
     </form>
   </div>
 </section>

@@ -186,4 +186,80 @@
     }
     queue();
   }
+
+  // Contact form -> Pabbly webhook (sent straight from the browser)
+  const PABBLY_WEBHOOK_URL = 'https://connect.pabbly.com/webhook-listener/webhook/IjU3NjAwNTY4MDYzMjA0Mzc1MjY5NTUzMiI_3D_pc/IjU3NjcwNTY5MDYzZTA0MzA1MjY1NTUzNjUxMzIi_pc';
+  const form = document.getElementById('contact-form');
+  if (form) {
+    const btn = form.querySelector('button[type="submit"]');
+    const label = btn.querySelector('.btn__label');
+    const errBox = form.querySelector('.form__err');
+    const showError = msg => { errBox.textContent = msg; errBox.classList.add('is-on'); };
+    const clearError = () => { errBox.textContent = ''; errBox.classList.remove('is-on'); };
+    const setBusy = busy => { btn.disabled = busy; label.textContent = busy ? 'Sending…' : 'Submit Inquiry'; };
+
+    // Clear the red border as soon as the visitor fixes a field
+    form.addEventListener('input', e => e.target.classList.remove('is-invalid'));
+    form.addEventListener('change', e => e.target.classList.remove('is-invalid'));
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      clearError();
+
+      // Validate required fields and email format
+      const invalid = [...form.elements].filter(el => el.willValidate && !el.checkValidity());
+      form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+      if (invalid.length) {
+        invalid.forEach(el => el.classList.add('is-invalid'));
+        invalid[0].focus();
+        showError(invalid.some(el => el.type === 'email' && el.value)
+          ? 'Please enter a valid email address.'
+          : 'Please fill in all required fields.');
+        return;
+      }
+
+      const v = name => (form.elements[name]?.value || '').trim();
+
+      // Honeypot: only bots fill the hidden "website" field. Pretend success, send nothing.
+      if (v('website')) { form.classList.add('sent'); return; }
+
+      const params = new URLSearchParams(location.search);
+      const payload = {
+        first_name: v('first'),
+        last_name: v('last'),
+        full_name: `${v('first')} ${v('last')}`,
+        email: v('email'),
+        phone: v('phone'),
+        company: v('company'),
+        service: v('service'),
+        monthly_ad_spend: v('spend'),
+        message: v('msg'),
+        submitted_at: new Date().toISOString(),
+        page_url: location.href,
+        referrer: document.referrer,
+        source: 'steroids-website'
+      };
+      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'fbclid']
+        .forEach(k => { payload[k] = params.get(k) || ''; });
+
+      setBusy(true);
+      try {
+        // Sent as form-encoded with no-cors: the browser delivers it to Pabbly without a
+        // CORS preflight. Pabbly's reply can't be read here, but a network failure still throws.
+        await fetch(PABBLY_WEBHOOK_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(payload).toString()
+        });
+        form.reset();
+        form.classList.add('sent');
+      } catch (err) {
+        console.error('Pabbly webhook failed', err);
+        showError('Something went wrong sending your inquiry. Please try again, or email hello@steroids.com.au.');
+      } finally {
+        setBusy(false);
+      }
+    });
+  }
 })();
